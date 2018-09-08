@@ -1,12 +1,12 @@
 # doku.py
 # This is a 3*3 Sudoku solving Python program, enabled by Big Data and AI (Totally not backtracking and recursion)
 
-The file doku.py was written by F4dora_0f_d00m.
+**The file doku.py was written by F4dora_0f_d00m.
 If you want access to make changes to this repository, ask questiosn or 
-give any sort of feedback, be free to contact me.
+give any sort of feedback, be free to contact me.**
 
-This Python file is free for all to use. If you find it useful somehow,
-be sure to tell me.
+**This Python file is free for all to use. If you find it useful somehow,
+be sure to tell me**
 
 
 ### User's Guide
