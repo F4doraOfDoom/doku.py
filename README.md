@@ -1,5 +1,5 @@
 # doku.py
-# This is a 3*3 Sudoku solving Python program, enabled by Big Data and AI (Totally not backtracking and recursion)
+# This is a 3*3 Sudoku solving Python3 program, enabled by Big Data and AI (Totally not backtracking and recursion)
 
 **The file doku.py was written by F4dora_0f_d00m.
 If you want access to make changes to this repository, ask questiosn or 
@@ -10,6 +10,7 @@ be sure to tell me**
 
 
 ### User's Guide
+Currently, only .csv files are supported. Make sure the files are formatted like in the example files.
 
 If you just want to print the output:
 ```
