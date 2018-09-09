@@ -71,11 +71,7 @@ This command will write the statistics to the file "output"
 ```
 This command will write the statistics to the file "stats_output"
 
-### A few notes:
-    * If a board is impossible, the program goes into an infinite loop. All possible boards
-     can be solved in a matter of seconds (depending on your computer), so if proccessing
-     the output takes more than that, you know the board is impossible
-    * I don't have any more notes
-    * Actually, I do: true winners don't use python programs to solve sudokos, they use
-     their head. Although, my motivation for creating this program is to solve a sudoku 
-     I had trouble with, so... 
+### A few notes: ###
+true winners don't use python programs to solve sudokos, they use
+their head. Although, my motivation for creating this program was to solve a sudoku 
+I had trouble with, so... 
