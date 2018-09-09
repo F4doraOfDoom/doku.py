@@ -1,45 +1,17 @@
-"""
-    This is a 3*3 Sudoku solving Python program, enabled by Big Data and AI
-    (Totally not backtracking and recursion)
-
-    The file doku.py was written by F4dora_0f_d00m.
-    If you want access to make changes to this repository, ask questiosn or 
-    give any sort of feedback, be free to contact me.
-
-    This Python file is free for all to use. If you find it useful somehow,
-    be sure to tell me.
-
-    
-    User's Guide
-
-    If you just want to print the output:
-        python3 doku.py [csv file containing the board]
-    
-    If you want to output the solution to a file:
-        python3 doku.py -i [csv file containing the board] -o [name of the output file]
-    Alternatively, you can:
-        python3 doku.py --in [csv file containing the board] --out [name of the output file]
-
-    If you want to output the solution to a file AND print the output, add the -p flag:
-        python3 doku.py ... -p
-    Alternatively, you can:
-        python3 doku.py ... --print
-
-    A few notes:
-        *If a board is impossible, the program goes into an infinite loop. All possible boards
-         can be solved in a matter of seconds (depending on your computer), so if proccessing
-         the output takes more than that, you know the board is impossible
-        *I don't have any more notes
-        *Actually, I do: true winners don't use python programs to solve sudokos, they use
-         their head. Although, my motivation for creating this program is to solve a sudoku 
-         I had trouble with, so... 
-"""
-
 import sys 
 
 PRINT_OUTPUT = False
 OUTPUT_TO_FILE = False
 INPUT_FILE = None
+SOLVED_BOARD = False
+STATISTICS = {
+    "ACTIVE" : False,
+    "WRITE_TO_FILE" : False,
+    "OUTPUT_FILE" : None,
+    "START_TIME" : None,
+    "ITERATIONS" : 0,
+    "OUTPUT_MESSAGE" : "Start time: {}\nEnd time: {}\nTime Delta: {}\nIterations: {}"
+}
 
 class BadSudokuException(Exception):
     """
@@ -114,10 +86,16 @@ def check_integrity(board):
     for x in range(0, 9):
         for y in range(0, 9): 
             if board[x][y] not in valid:
-                raise BadSudokuException("Sudoku has invalid characters")
+                if __name__ == "__main__":
+                    sys.exit("Sudoku has invalid characters")
+                else:
+                    raise BadSudokuException("Sudoku has invalid characters")
 
     if len(board) is not 9 or any(len(row) is not 9 for row in board):
-        raise BadSudokuException("Sudoku has invalid length")
+        if __name__ == "__main__":
+            sys.exit("Sudoku has invalid length")
+        else:
+            raise BadSudokuException("Sudoku has invalid length")
 
 def boardIsFull(board):
     """
@@ -141,7 +119,9 @@ def solve(board):
     if boardIsFull(board):
         global PRINT_OUTPUT
         global OUTPUT_TO_FILE
+        global SOLVED_BOARD
 
+        SOLVED_BOARD = True
         if PRINT_OUTPUT: 
             print_board(board)
         if OUTPUT_TO_FILE:
@@ -149,6 +129,10 @@ def solve(board):
 
         return
     else:
+        global STATISTICS
+
+        STATISTICS["ITERATIONS"] += 1
+
         x_empty, y_empty = 0, 0
         for x in range(0, 9):
             for y in range(0, 9):
@@ -209,8 +193,13 @@ def check_flags():
     global PRINT_OUTPUT
     global OUTPUT_TO_FILE
     global INPUT_FILE
+    global STATISTICS
 
     if len(sys.argv) > 2:
+        arguments = ["-i", "--in", "-o", "--out", "-p", "--print", "-s", "--statistics", "-sf"
+                    "--statistics-to-file"
+                        ]
+
         for idx, arg in enumerate(sys.argv):
             if arg == "-i" or arg == "--in":
                 try:
@@ -220,13 +209,40 @@ def check_flags():
                         sys.exit("Argument {} is not a file".format(sys.argv[idx + 1]))
                 except IndexError:
                     sys.exit("No input file specified")
+
             if arg == "-o" or arg == "--out":
                 try:
-                    OUTPUT_TO_FILE = sys.argv[idx + 1]
+                    if sys.argv[idx + 1] not in arguments:
+                        OUTPUT_TO_FILE = sys.argv[idx + 1]
+                    else:
+                        sys.exit("No output file specified")
                 except IndexError:
                     sys.exit("No output file specified")
+
             if arg == "-p" or arg == "--print":
                 PRINT_OUTPUT = True
+
+            if arg == "-s" or arg == "--statistics":
+                from datetime import datetime, timedelta
+
+                STATISTICS["ACTIVE"] = True
+                STATISTICS["START_TIME"] = datetime.now()
+
+            if arg == "-sf" or arg == "--statistics-to-file":
+                from datetime import datetime, timedelta
+
+                STATISTICS["ACTIVE"] = True
+                STATISTICS["START_TIME"] = datetime.now()
+                STATISTICS["WRITE_TO_FILE"] = True
+
+                try:
+                    if sys.argv[idx + 1] not in arguments:
+                        STATISTICS["OUTPUT_FILE"] = sys.argv[idx + 1]
+                    else:
+                        sys.exit("No output file specified for statistics")
+                except IndexError:
+                    STATISTICS["OUTPUT_FILE"] = OUTPUT_TO_FILE
+                    #sys.exit("No output file specified for statistics")
 
         if not INPUT_FILE or not OUTPUT_TO_FILE:
             sys.exit("Both input and output should be specified")
@@ -248,6 +264,26 @@ def output_to_file(board):
         for row in board:
             output.write(','.join(row) + "\n")
 
+def output_statistics_to_file():
+    """
+        This function writes the program's statistics to a file
+        If a file is specified after -sf, the file is written to specified file.
+        If not, it appends the statistics to the output file specified after -o
+    """
+    global STATISTICS
+
+    if STATISTICS["OUTPUT_FILE"] == OUTPUT_TO_FILE:
+        write_mode = "a" 
+    else:
+        write_mode = "w"
+
+    with open(STATISTICS["OUTPUT_FILE"], write_mode) as output:
+        output.write("\n")
+        output.write(STATISTICS["OUTPUT_MESSAGE"].format(STATISTICS["START_TIME"], 
+                datetime.now(), 
+                datetime.now() - STATISTICS["START_TIME"], 
+                STATISTICS["ITERATIONS"]))
+
 if __name__ == "__main__":
     check_flags()
 
@@ -256,4 +292,19 @@ if __name__ == "__main__":
     check_integrity(board)
     
     solve(board)
+
+    if STATISTICS["ACTIVE"]:
+        from datetime import datetime, timedelta
+        STATISTICS["END_TIME"] = datetime.now()
+
+        if STATISTICS["WRITE_TO_FILE"]:
+            output_statistics_to_file()
+        else:
+            print(STATISTICS["OUTPUT_MESSAGE"].format(STATISTICS["START_TIME"], 
+                datetime.now(), 
+                datetime.now() - STATISTICS["START_TIME"], 
+                STATISTICS["ITERATIONS"]))
+
+    if not SOLVED_BOARD:
+        raise BadSudokuException("Sudoku is impossible")
 
